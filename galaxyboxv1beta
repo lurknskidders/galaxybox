@@ -1,137 +1,84 @@
--- Full Audio List (Complete)
-local audioList = {
-    ["jugsta - motion"] = "14884816658",
-    ["jugsta - lose yourself"] = "14884817551",
-    ["jugsta - fade away"] = "14884818429",
-    ["jugsta - when im gone"] = "14884821038",
-    ["jugsta - spacin"] = "14884821394",
-    ["jugsta - japan"] = "14884822465",
-    ["jugsta - batman"] = "14884822914",
-    ["jugsta - lies"] = "14884824647",
-    ["Mexico gangster music"] = "6942391979",
-    ["im so alone - lil soda boi"] = "6774872457",
-    ["Fnaf 1 Call"] = "4835346587",
-    ["Hey Soul Sister (Short)"] = "6815734998",
-    ["Ear Tester"] = "6954430911",
-    ["Another Ear Tester"] = "6353662235",
-    ["2007MYSPACEGIRL - TINY PANTS"] = "7014573768",
-    ["Minecraft Meme"] = "5278041368",
-    ["Schnek Schnek Schnek Schnek"] = "5196850360",
-    ["Saschnek Saschnek Saschnek Saschnek"] = "5195797557",
-    ["LIL BOODANG - FUCK EVERYBODY DISSIN"] = "2646887567",
-    ["Daniel Caesar - Get You (Slowed)"] = "6924735395",
-    ["Suck My Dick"] = "5562571171",
-    ["Five Nights at Freddy's 2 Song"] = "6913550990",
-    ["Loud THX sound"] = "6959629099",
-    ["Another Phonk Audio"] = "7702262254",
-    ["Audio Maker ABC"] = "6038276929",
-    ["Loud Full Audio"] = "6859498588",
-    ["Kevin Macleod - Movement Proposition"] = "58479849",
-    ["9+10=21"] = "6025999413",
-    ["Doomshop"] = "1384859762",
-    ["Pimp Dat Ho - Lil Pimp 187"] = "6834218705",
-    ["SADISZT X LUNATIC - ENFERMOS REMIX"] = "6709587570",
-    ["Comethazine - HenchMafia"] = "6674211522",
-    ["Arabic audio"] = "7644757406",
-    ["PINK GUY - DUMPLINGS"] = "6670954642",
-    ["Mista Frost - Glock In My Draws"] = "6696294740",
-    ["Idk (1 distortion)"] = "2728378904",
-    ["Soi Helikopter"] = "5228360670",
-    ["Zenorachi - Brace Yourself"] = "6529070845",
-    ["AREA 21 - Spaceships"] = "6742463413",
-    ["You messed it up what you did spam"] = "5403217296",
-    ["Afroman - Because I Got High"] = "6926765330"
-}
+-- GalaxyBox Hub V1 Updated Script
 
--- Function to play audio
-local function playAudio(audioID)
-    local boombox = game.Workspace:FindFirstChild("Boombox") -- Make sure Boombox exists
-    if boombox then
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://" .. audioID
-        sound.Parent = boombox
-        sound:Play()
-    else
-        warn("Boombox not found!")
-    end
-end
-
--- Bass toggle feature
-local function toggleBass(enabled)
-    local boombox = game.Workspace:FindFirstChild("Boombox")
-    if boombox then
-        -- Bass boost logic here (You can modify this part based on your needs)
-        if enabled then
-            boombox.BassBoost = true  -- Example (you need to define the property if it's not available)
-        else
-            boombox.BassBoost = false
-        end
-    else
-        warn("Boombox not found!")
-    end
-end
-
--- GUI Logic
+-- Create the main GUI
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GalaxyBoxGUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 400, 0, 500)
-Frame.Position = UDim2.new(0.5, -200, 0.5, -250)
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.Size = UDim2.new(0.5, 0, 0.6, 0)
+Frame.Position = UDim2.new(0.25, 0, 0.2, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Frame.Parent = ScreenGui
-ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
-
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Text = "Audio List"
-TitleLabel.Size = UDim2.new(0, 400, 0, 50)
-TitleLabel.Position = UDim2.new(0, 0, 0, 0)
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.TextSize = 30
-TitleLabel.Parent = Frame
-
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(0, 400, 0, 400)
-ScrollFrame.Position = UDim2.new(0, 0, 0, 50)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.ScrollBarThickness = 10
-ScrollFrame.Parent = Frame
 
 local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = ScrollFrame
+UIListLayout.Parent = Frame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
 
--- Add buttons for each audio to the GUI
-for audioName, audioID in pairs(audioList) do
-    local AudioButton = Instance.new("TextButton")
-    AudioButton.Text = audioName
-    AudioButton.Size = UDim2.new(0, 380, 0, 40)
-    AudioButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    AudioButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    AudioButton.Font = Enum.Font.GothamBold
-    AudioButton.TextSize = 18
-    AudioButton.Parent = ScrollFrame
-    
-    AudioButton.MouseButton1Click:Connect(function()
-        playAudio(audioID)
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 50, 0, 30)
+CloseButton.Position = UDim2.new(1, -55, 0, 5)
+CloseButton.Text = "X"
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Parent = Frame
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Bass Boost Toggle
+local BassBoost = false
+local BassBoostButton = Instance.new("TextButton")
+BassBoostButton.Size = UDim2.new(0, 200, 0, 30)
+BassBoostButton.Text = "Bass Boost: OFF"
+BassBoostButton.BackgroundColor3 = Color3.fromRGB(0, 128, 255)
+BassBoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BassBoostButton.Parent = Frame
+BassBoostButton.MouseButton1Click:Connect(function()
+    BassBoost = not BassBoost
+    if BassBoost then
+        BassBoostButton.Text = "Bass Boost: ON"
+    else
+        BassBoostButton.Text = "Bass Boost: OFF"
+    end
+end)
+
+-- Audio List
+local audioList = {
+    {name = "jugsta - motion", id = 14884816658},
+    {name = "jugsta - lose yourself", id = 14884817551},
+    {name = "jugsta - fade away", id = 14884818429},
+    {name = "jugsta - when im gone", id = 14884821038},
+    {name = "jugsta - spacin", id = 14884821394},
+    {name = "jugsta - japan", id = 14884822465},
+    {name = "jugsta - batman", id = 14884822914},
+    {name = "jugsta - lies", id = 14884824647}
+}
+
+-- Function to create audio buttons
+local function createAudioButton(audio)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 200, 0, 30)
+    button.Text = audio.name
+    button.BackgroundColor3 = Color3.fromRGB(0, 128, 255)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Parent = Frame
+
+    button.MouseButton1Click:Connect(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://" .. audio.id
+        sound.Parent = game.Workspace
+        if BassBoost then
+            sound.EqualizerSoundEffect = Instance.new("EqualizerSoundEffect", sound)
+            sound.EqualizerSoundEffect.LowGain = 10
+        end
+        sound:Play()
     end)
 end
 
--- Bass Toggle Button
-local BassButton = Instance.new("TextButton")
-BassButton.Text = "Toggle Bass"
-BassButton.Size = UDim2.new(0, 400, 0, 50)
-BassButton.Position = UDim2.new(0, 0, 0, 450)
-BassButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-BassButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-BassButton.Font = Enum.Font.GothamBold
-BassButton.TextSize = 18
-BassButton.Parent = ScreenGui
-
-local bassEnabled = false
-
-BassButton.MouseButton1Click:Connect(function()
-    bassEnabled = not bassEnabled
-    toggleBass(bassEnabled)
-    BassButton.Text = bassEnabled and "Bass: ON" or "Bass: OFF"
-end)
+-- Create buttons for each audio
+for _, audio in ipairs(audioList) do
+    createAudioButton(audio)
+end
