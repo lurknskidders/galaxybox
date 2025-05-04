@@ -183,61 +183,73 @@ buttonHover(stopBtn)
 -- ========== Song Scroll List ==========
 local scroll = Instance.new("ScrollingFrame", frame)
 scroll.Position = UDim2.new(0, 15, 0, 170)
-scroll.Size = UDim2.new(1, -30, 0, 250)
-scroll.BackgroundTransparency = 1
+scroll.Size = UDim2.new(1, -30, 1, -180)
+scroll.CanvasSize = UDim2.new(0, 0, 0, #songs * 30)
 scroll.ScrollBarThickness = 6
-scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.BackgroundColor3 = darkAccent
+scroll.BorderSizePixel = 0
+Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 10)
 
-local function createSongButton(songName, songId)
-    local songBtn = Instance.new("TextButton", scroll)
-    songBtn.Text = songName
-    songBtn.Size = UDim2.new(1, -10, 0, 30)
-    songBtn.Position = UDim2.new(0, 5, 0, 0)
-    songBtn.BackgroundColor3 = darkAccent
-    songBtn.TextColor3 = textColor
-    songBtn.Font = Enum.Font.Gotham
-    songBtn.TextSize = 16
-    Instance.new("UICorner", songBtn).CornerRadius = UDim.new(0, 8)
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    songBtn.MouseButton1Click:Connect(function()
-        input.Text = songName
-        playSong(songId)
+for name, id in pairs(songs) do
+    local button = Instance.new("TextButton", scroll)
+    button.Text = name
+    button.Size = UDim2.new(1, -10, 0, 28)
+    button.BackgroundColor3 = baseColor
+    button.TextColor3 = textColor
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 16
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = accentColor}):Play()
     end)
-
-    return songBtn
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = baseColor}):Play()
+    end)
+    button.MouseButton1Click:Connect(function()
+        input.Text = tostring(id)
+        statusLabel.Text = "Selected: " .. name
+        statusLabel.TextColor3 = accentColor
+    end)
 end
 
--- Load songs dynamically
-for songName, songId in pairs(songs) do
-    createSongButton(songName, songId)
-end
+-- ========== Boombox Remote Logic ==========
+local boomboxRemote = findRemote()
 
--- ========== Toggle GUI Visibility ==========
+spawn(function()
+    while gui and gui.Parent do
+        wait(1)
+        if boomboxRemote then
+            statusLabel.Text = "Boombox connected!"
+            statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            break
+        else
+            statusLabel.Text = "Waiting for boombox status..."
+            statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        end
+    end
+end)
+
+playBtn.MouseButton1Click:Connect(function()
+    local songID = input.Text
+    if boomboxRemote and songID and songID ~= "" then
+        boomboxRemote:FireServer("Play", songID)
+        statusLabel.Text = "Playing: " .. songID
+    end
+end)
+
+stopBtn.MouseButton1Click:Connect(function()
+    if boomboxRemote then
+        boomboxRemote:FireServer("Stop")
+        statusLabel.Text = "Stopped"
+    end
+end)
+
+-- ========== Toggle GUI ==========
 toggleIcon.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
 end)
-
--- ========== Play Song Function ==========
-local function playSong(id)
-    local boomboxRemote = findRemote()
-    if not boomboxRemote then
-        statusLabel.Text = "No boombox equipped!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    if typeof(id) ~= "number" then
-        statusLabel.Text = "Invalid Audio ID!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    local success, err = pcall(function()
-        boomboxRemote:FireServer("PlaySong", id)
-    end)
-    if success then
-        statusLabel.Text = "Playing audio ID: " .. id
-        statusLabel.TextColor3 = accentColor
-    else
-        statusLabel.Text = "Failed to play sound: " .. tostring(err)
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-    end
-end
