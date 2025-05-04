@@ -1,4 +1,3 @@
--- GalaxyBox Hub V1 - Modern Boombox GUI (Improved)
 local player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -51,7 +50,7 @@ local songs = {
     ["jugsta - treasury"] = 16190761193,
     ["jugsta - raining tacos (jugcore cover)"] = 16662830706,
     ["jugsta - runaway"] = 16662827317,
-    ["jugsta - rampage (ai version)"] = 17422074348,
+    ["jugsta - rampage (ai version)"] = 17422074348
 }
 
 -- ========== GUI Theme Colors ==========
@@ -80,10 +79,10 @@ Instance.new("UICorner", toggleIcon).CornerRadius = UDim.new(0, 10)
 
 -- Hover effect
 local function buttonHover(btn)
-	local hover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = accentColor2})
-	local unhover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = darkAccent})
-	btn.MouseEnter:Connect(function() hover:Play() end)
-	btn.MouseLeave:Connect(function() unhover:Play() end)
+    local hover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = accentColor2})
+    local unhover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = darkAccent})
+    btn.MouseEnter:Connect(function() hover:Play() end)
+    btn.MouseLeave:Connect(function() unhover:Play() end)
 end
 buttonHover(toggleIcon)
 
@@ -114,9 +113,9 @@ shadow.ZIndex = 0
 local grad = Instance.new("UIGradient", frame)
 grad.Rotation = 45
 grad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, darkAccent),
-	ColorSequenceKeypoint.new(0.5, baseColor),
-	ColorSequenceKeypoint.new(1, darkAccent)
+    ColorSequenceKeypoint.new(0, darkAccent),
+    ColorSequenceKeypoint.new(0.5, baseColor),
+    ColorSequenceKeypoint.new(1, darkAccent)
 })
 
 -- ========== Draggable for PC ==========
@@ -184,99 +183,61 @@ buttonHover(stopBtn)
 -- ========== Song Scroll List ==========
 local scroll = Instance.new("ScrollingFrame", frame)
 scroll.Position = UDim2.new(0, 15, 0, 170)
-scroll.Size = UDim2.new(1, -30, 1, -180)
-scroll.CanvasSize = UDim2.new(0, 0, 0, #songs * 30)
+scroll.Size = UDim2.new(1, -30, 0, 250)
+scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 6
-scroll.BackgroundColor3 = darkAccent
-scroll.BorderSizePixel = 0
-Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 10)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-local layout = Instance.new("UIListLayout", scroll)
-layout.Padding = UDim.new(0, 5)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
+local function createSongButton(songName, songId)
+    local songBtn = Instance.new("TextButton", scroll)
+    songBtn.Text = songName
+    songBtn.Size = UDim2.new(1, -10, 0, 30)
+    songBtn.Position = UDim2.new(0, 5, 0, 0)
+    songBtn.BackgroundColor3 = darkAccent
+    songBtn.TextColor3 = textColor
+    songBtn.Font = Enum.Font.Gotham
+    songBtn.TextSize = 16
+    Instance.new("UICorner", songBtn).CornerRadius = UDim.new(0, 8)
 
-for name, id in pairs(songs) do
-	local button = Instance.new("TextButton", scroll)
-	button.Text = name
-	button.Size = UDim2.new(1, -10, 0, 28)
-	button.BackgroundColor3 = baseColor
-	button.TextColor3 = textColor
-	button.Font = Enum.Font.Gotham
-	button.TextSize = 16
-	Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+    songBtn.MouseButton1Click:Connect(function()
+        input.Text = songName
+        playSong(songId)
+    end)
 
-	button.MouseEnter:Connect(function()
-		TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = accentColor}):Play()
-	end)
-	button.MouseLeave:Connect(function()
-		TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = baseColor}):Play()
-	end)
-	button.MouseButton1Click:Connect(function()
-		input.Text = tostring(id)
-		statusLabel.Text = "Selected: " .. name
-		statusLabel.TextColor3 = accentColor
-	end)
+    return songBtn
 end
 
--- ========== Boombox Remote Logic ==========
-local boomboxRemote = findRemote()
-spawn(function()
-	while gui and gui.Parent do
-		wait(2)
-		local remote = findRemote()
-		if remote ~= boomboxRemote then
-			boomboxRemote = remote
-			if boomboxRemote then
-				statusLabel.Text = "Boombox equipped."
-				statusLabel.TextColor3 = accentColor
-			else
-				statusLabel.Text = "Boombox not equipped."
-				statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-			end
-		end
-	end
-end)
-
--- ========== Play/Stop Functions ==========
-local function playSong(id)
-	if not boomboxRemote then
-		statusLabel.Text = "No boombox equipped!"
-		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-		return
-	end
-	boomboxRemote:FireServer("Play", id)
-	statusLabel.Text = "Playing: " .. id
-	statusLabel.TextColor3 = accentColor
+-- Load songs dynamically
+for songName, songId in pairs(songs) do
+    createSongButton(songName, songId)
 end
 
-local function stopSong()
-	if not boomboxRemote then
-		statusLabel.Text = "No boombox equipped!"
-		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-		return
-	end
-	boomboxRemote:FireServer("Stop")
-	statusLabel.Text = "Stopped."
-	statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-end
-
-playBtn.MouseButton1Click:Connect(function()
-	local songID = input.Text
-	if songs[songID] then
-		playSong(songs[songID])
-	elseif tonumber(songID) then
-		playSong(songID)
-	else
-		statusLabel.Text = "Invalid Song ID"
-		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-	end
-end)
-
-stopBtn.MouseButton1Click:Connect(function()
-	stopSong()
-end)
-
--- Toggle Visibility
+-- ========== Toggle GUI Visibility ==========
 toggleIcon.MouseButton1Click:Connect(function()
-	frame.Visible = not frame.Visible
+    frame.Visible = not frame.Visible
 end)
+
+-- ========== Play Song Function ==========
+local function playSong(id)
+    local boomboxRemote = findRemote()
+    if not boomboxRemote then
+        statusLabel.Text = "No boombox equipped!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    if typeof(id) ~= "number" then
+        statusLabel.Text = "Invalid Audio ID!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    local success, err = pcall(function()
+        boomboxRemote:FireServer("PlaySong", id)
+    end)
+    if success then
+        statusLabel.Text = "Playing audio ID: " .. id
+        statusLabel.TextColor3 = accentColor
+    else
+        statusLabel.Text = "Failed to play sound: " .. tostring(err)
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
+end
