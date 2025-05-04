@@ -1,0 +1,138 @@
+-- GalaxyBox Hub V1 - Modern Boombox GUI (Improved)
+local player = game:GetService("Players").LocalPlayer
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+repeat wait() until player:FindFirstChild("PlayerGui")
+
+-- ========== Helper to Find Boombox Remote ==========
+local function findRemote()
+    local function searchBag()
+        for _, item in ipairs(player.Backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                local remote = item:FindFirstChildWhichIsA("RemoteEvent")
+                if remote then return remote end
+            end
+        end
+        for _, item in ipairs(player.Character:GetChildren()) do
+            if item:IsA("Tool") then
+                local remote = item:FindFirstChildWhichIsA("RemoteEvent")
+                if remote then return remote end
+            end
+        end
+        return nil
+    end
+    return searchBag()
+end
+
+-- ========== Audio List ==========
+local songs = {
+    ["jugsta - motion"] = 14884816658,
+    ["jugsta - lose yourself"] = 14884817551,
+    ["jugsta - when im gone"] = 14884821038,
+    ["jugsta - spacin"] = 14884821394,
+    ["jugsta - japan"] = 14884822465,
+    ["jugsta - batman"] = 14884822914,
+    ["jugsta - lies"] = 14884824647,
+    ["jugsta - rampage"] = 15689441013,
+    ["jugsta - ball"] = 15689441541,
+    ["jugsta - dejavus"] = 15689442404,
+    ["jugsta - hatin"] = 15689442645,
+    ["jugsta - ouuu"] = 15689442874,
+    ["jugsta - rockstar"] = 15689449215,
+    ["jugsta - spooky scary skeletons"] = 15689450026,
+    ["jugsta - company"] = 15689450321,
+    ["jugsta - part of me"] = 15689451790,
+    ["jugsta - rampage (sped up)"] = 15689453751,
+    ["jugsta - rampage (other version)"] = 16662831606,
+    ["jugsta - manifest"] = 15689453973,
+    ["jugsta - deja vus 2"] = 15689455568,
+    ["jugsta - cash up"] = 16190758325,
+    ["jugsta - treasury"] = 16190761193,
+    ["jugsta - raining tacos (jugcore cover)"] = 16662830706,
+    ["jugsta - runaway"] = 16662827317,
+    ["jugsta - rampage (ai version)"] = 17422074348,
+}
+
+-- ========== GUI Theme Colors ==========
+local baseColor = Color3.fromRGB(18, 18, 25)
+local accentColor = Color3.fromRGB(85, 170, 255)
+local accentColor2 = Color3.fromRGB(170, 0, 255)
+local textColor = Color3.fromRGB(235, 235, 245)
+local darkAccent = Color3.fromRGB(30, 30, 42)
+
+-- ========== Create GUI ==========
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "GalaxyBoxHubV1"
+gui.ResetOnSpawn = false
+
+-- ========== Toggle Button (Top-Right) ==========
+local toggleIcon = Instance.new("ImageButton")
+toggleIcon.Name = "ToggleBoomboxIcon"
+toggleIcon.Size = UDim2.new(0, 44, 0, 44)
+toggleIcon.Position = UDim2.new(1, -64, 0, 20)
+toggleIcon.AnchorPoint = Vector2.new(0, 0)
+toggleIcon.BackgroundColor3 = darkAccent
+toggleIcon.BorderSizePixel = 0
+toggleIcon.Image = "rbxassetid://6023426915"
+toggleIcon.Parent = gui
+Instance.new("UICorner", toggleIcon).CornerRadius = UDim.new(0, 10)
+
+-- Hover effect
+local function buttonHover(btn)
+	local hover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = accentColor2})
+	local unhover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = darkAccent})
+	btn.MouseEnter:Connect(function() hover:Play() end)
+	btn.MouseLeave:Connect(function() unhover:Play() end)
+end
+buttonHover(toggleIcon)
+
+-- ========== Main Frame ==========
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 340, 0, 480)
+frame.Position = UDim2.new(0.5, -170, 0.5, -240)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = baseColor
+frame.BorderSizePixel = 0
+frame.Visible = false
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+-- Shadow
+local shadow = Instance.new("ImageLabel", frame)
+shadow.Size = UDim2.new(1, 16, 1, 16)
+shadow.Position = UDim2.new(0, -8, 0, -8)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.new(0, 0, 0)
+shadow.ImageTransparency = 0.6
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10,10,118,118)
+shadow.ZIndex = 0
+
+-- Gradient
+local grad = Instance.new("UIGradient", frame)
+grad.Rotation = 45
+grad.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, darkAccent),
+	ColorSequenceKeypoint.new(0.5, baseColor),
+	ColorSequenceKeypoint.new(1, darkAccent)
+})
+
+-- ========== Draggable for PC ==========
+frame.Active = true
+frame.Draggable = true
+
+-- ========== Title ==========
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 36)
+title.BackgroundTransparency = 1
+title.Text = "GalaxyBox Hub V1"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.TextColor3 = accentColor
+title.TextStrokeTransparency = 0.75
+
+-- ========== Input ==========
+local input = Instance.new("TextBox", frame)
+input.PlaceholderText
