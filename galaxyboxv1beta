@@ -1,255 +1,137 @@
-local player = game:GetService("Players").LocalPlayer
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-
-repeat wait() until player:FindFirstChild("PlayerGui")
-
--- ========== Helper to Find Boombox Remote ==========
-local function findRemote()
-    local function searchBag()
-        for _, item in ipairs(player.Backpack:GetChildren()) do
-            if item:IsA("Tool") then
-                local remote = item:FindFirstChildWhichIsA("RemoteEvent")
-                if remote then return remote end
-            end
-        end
-        for _, item in ipairs(player.Character:GetChildren()) do
-            if item:IsA("Tool") then
-                local remote = item:FindFirstChildWhichIsA("RemoteEvent")
-                if remote then return remote end
-            end
-        end
-        return nil
-    end
-    return searchBag()
-end
-
--- ========== Audio List ==========
-local songs = {
-    ["jugsta - motion"] = 14884816658,
-    ["jugsta - lose yourself"] = 14884817551,
-    ["jugsta - when im gone"] = 14884821038,
-    ["jugsta - spacin"] = 14884821394,
-    ["jugsta - japan"] = 14884822465,
-    ["jugsta - batman"] = 14884822914,
-    ["jugsta - lies"] = 14884824647,
-    ["jugsta - rampage"] = 15689441013,
-    ["jugsta - ball"] = 15689441541,
-    ["jugsta - dejavus"] = 15689442404,
-    ["jugsta - hatin"] = 15689442645,
-    ["jugsta - ouuu"] = 15689442874,
-    ["jugsta - rockstar"] = 15689449215,
-    ["jugsta - spooky scary skeletons"] = 15689450026,
-    ["jugsta - company"] = 15689450321,
-    ["jugsta - part of me"] = 15689451790,
-    ["jugsta - rampage (sped up)"] = 15689453751,
-    ["jugsta - rampage (other version)"] = 16662831606,
-    ["jugsta - manifest"] = 15689453973,
-    ["jugsta - deja vus 2"] = 15689455568,
-    ["jugsta - cash up"] = 16190758325,
-    ["jugsta - treasury"] = 16190761193,
-    ["jugsta - raining tacos (jugcore cover)"] = 16662830706,
-    ["jugsta - runaway"] = 16662827317,
-    ["jugsta - rampage (ai version)"] = 17422074348
+-- Full Audio List (Complete)
+local audioList = {
+    ["jugsta - motion"] = "14884816658",
+    ["jugsta - lose yourself"] = "14884817551",
+    ["jugsta - fade away"] = "14884818429",
+    ["jugsta - when im gone"] = "14884821038",
+    ["jugsta - spacin"] = "14884821394",
+    ["jugsta - japan"] = "14884822465",
+    ["jugsta - batman"] = "14884822914",
+    ["jugsta - lies"] = "14884824647",
+    ["Mexico gangster music"] = "6942391979",
+    ["im so alone - lil soda boi"] = "6774872457",
+    ["Fnaf 1 Call"] = "4835346587",
+    ["Hey Soul Sister (Short)"] = "6815734998",
+    ["Ear Tester"] = "6954430911",
+    ["Another Ear Tester"] = "6353662235",
+    ["2007MYSPACEGIRL - TINY PANTS"] = "7014573768",
+    ["Minecraft Meme"] = "5278041368",
+    ["Schnek Schnek Schnek Schnek"] = "5196850360",
+    ["Saschnek Saschnek Saschnek Saschnek"] = "5195797557",
+    ["LIL BOODANG - FUCK EVERYBODY DISSIN"] = "2646887567",
+    ["Daniel Caesar - Get You (Slowed)"] = "6924735395",
+    ["Suck My Dick"] = "5562571171",
+    ["Five Nights at Freddy's 2 Song"] = "6913550990",
+    ["Loud THX sound"] = "6959629099",
+    ["Another Phonk Audio"] = "7702262254",
+    ["Audio Maker ABC"] = "6038276929",
+    ["Loud Full Audio"] = "6859498588",
+    ["Kevin Macleod - Movement Proposition"] = "58479849",
+    ["9+10=21"] = "6025999413",
+    ["Doomshop"] = "1384859762",
+    ["Pimp Dat Ho - Lil Pimp 187"] = "6834218705",
+    ["SADISZT X LUNATIC - ENFERMOS REMIX"] = "6709587570",
+    ["Comethazine - HenchMafia"] = "6674211522",
+    ["Arabic audio"] = "7644757406",
+    ["PINK GUY - DUMPLINGS"] = "6670954642",
+    ["Mista Frost - Glock In My Draws"] = "6696294740",
+    ["Idk (1 distortion)"] = "2728378904",
+    ["Soi Helikopter"] = "5228360670",
+    ["Zenorachi - Brace Yourself"] = "6529070845",
+    ["AREA 21 - Spaceships"] = "6742463413",
+    ["You messed it up what you did spam"] = "5403217296",
+    ["Afroman - Because I Got High"] = "6926765330"
 }
 
--- ========== GUI Theme Colors ==========
-local baseColor = Color3.fromRGB(18, 18, 25)
-local accentColor = Color3.fromRGB(85, 170, 255)
-local accentColor2 = Color3.fromRGB(170, 0, 255)
-local textColor = Color3.fromRGB(235, 235, 245)
-local darkAccent = Color3.fromRGB(30, 30, 42)
-
--- ========== Create GUI ==========
-local gui = Instance.new("ScreenGui", player.PlayerGui)
-gui.Name = "GalaxyBoxHubV1"
-gui.ResetOnSpawn = false
-
--- ========== Toggle Button (Top-Right) ==========
-local toggleIcon = Instance.new("ImageButton")
-toggleIcon.Name = "ToggleBoomboxIcon"
-toggleIcon.Size = UDim2.new(0, 44, 0, 44)
-toggleIcon.Position = UDim2.new(1, -64, 0, 20)
-toggleIcon.AnchorPoint = Vector2.new(0, 0)
-toggleIcon.BackgroundColor3 = darkAccent
-toggleIcon.BorderSizePixel = 0
-toggleIcon.Image = "rbxassetid://6023426915"
-toggleIcon.Parent = gui
-Instance.new("UICorner", toggleIcon).CornerRadius = UDim.new(0, 10)
-
--- Hover effect
-local function buttonHover(btn)
-    local hover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = accentColor2})
-    local unhover = TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = darkAccent})
-    btn.MouseEnter:Connect(function() hover:Play() end)
-    btn.MouseLeave:Connect(function() unhover:Play() end)
-end
-buttonHover(toggleIcon)
-
--- ========== Main Frame ==========
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 340, 0, 480)
-frame.Position = UDim2.new(0.5, -170, 0.5, -240)
-frame.AnchorPoint = Vector2.new(0.5, 0.5)
-frame.BackgroundColor3 = baseColor
-frame.BorderSizePixel = 0
-frame.Visible = false
-frame.Parent = gui
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-
--- Shadow
-local shadow = Instance.new("ImageLabel", frame)
-shadow.Size = UDim2.new(1, 16, 1, 16)
-shadow.Position = UDim2.new(0, -8, 0, -8)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageColor3 = Color3.new(0, 0, 0)
-shadow.ImageTransparency = 0.6
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10,10,118,118)
-shadow.ZIndex = 0
-
--- Gradient
-local grad = Instance.new("UIGradient", frame)
-grad.Rotation = 45
-grad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, darkAccent),
-    ColorSequenceKeypoint.new(0.5, baseColor),
-    ColorSequenceKeypoint.new(1, darkAccent)
-})
-
--- ========== Draggable for PC ==========
-frame.Active = true
-frame.Draggable = true
-
--- ========== Title ==========
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 36)
-title.BackgroundTransparency = 1
-title.Text = "GalaxyBox Hub V1"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 24
-title.TextColor3 = accentColor
-title.TextStrokeTransparency = 0.75
-
--- ========== Input ==========
-local input = Instance.new("TextBox", frame)
-input.PlaceholderText = "Paste Audio ID or Select from List"
-input.Size = UDim2.new(1, -30, 0, 32)
-input.Position = UDim2.new(0, 15, 0, 50)
-input.BackgroundColor3 = darkAccent
-input.TextColor3 = textColor
-input.ClearTextOnFocus = false
-Instance.new("UICorner", input).CornerRadius = UDim.new(0, 8)
-
--- ========== Status Label ==========
-local statusLabel = Instance.new("TextLabel", frame)
-statusLabel.Position = UDim2.new(0, 15, 0, 90)
-statusLabel.Size = UDim2.new(1, -30, 0, 20)
-statusLabel.BackgroundTransparency = 1
-statusLabel.TextColor3 = textColor
-statusLabel.Text = "Boombox status pending..."
-statusLabel.Font = Enum.Font.Gotham
-statusLabel.TextSize = 14
-
--- ========== Play/Stop Buttons ==========
-local buttonsFrame = Instance.new("Frame", frame)
-buttonsFrame.Size = UDim2.new(1, -30, 0, 34)
-buttonsFrame.Position = UDim2.new(0, 15, 0, 120)
-buttonsFrame.BackgroundTransparency = 1
-
-local playBtn = Instance.new("TextButton", buttonsFrame)
-playBtn.Text = "Play"
-playBtn.Size = UDim2.new(0.48, -5, 1, 0)
-playBtn.Position = UDim2.new(0, 0, 0, 0)
-playBtn.BackgroundColor3 = accentColor2
-playBtn.TextColor3 = Color3.new(1, 1, 1)
-playBtn.Font = Enum.Font.GothamBold
-playBtn.TextSize = 18
-Instance.new("UICorner", playBtn).CornerRadius = UDim.new(0, 10)
-buttonHover(playBtn)
-
-local stopBtn = Instance.new("TextButton", buttonsFrame)
-stopBtn.Text = "Stop"
-stopBtn.Size = UDim2.new(0.48, -5, 1, 0)
-stopBtn.Position = UDim2.new(0.52, 0, 0, 0)
-stopBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90)
-stopBtn.TextColor3 = Color3.new(1, 1, 1)
-stopBtn.Font = Enum.Font.GothamBold
-stopBtn.TextSize = 18
-Instance.new("UICorner", stopBtn).CornerRadius = UDim.new(0, 10)
-buttonHover(stopBtn)
-
--- ========== Song Scroll List ==========
-local scroll = Instance.new("ScrollingFrame", frame)
-scroll.Position = UDim2.new(0, 15, 0, 170)
-scroll.Size = UDim2.new(1, -30, 1, -180)
-scroll.CanvasSize = UDim2.new(0, 0, 0, #songs * 30)
-scroll.ScrollBarThickness = 6
-scroll.BackgroundColor3 = darkAccent
-scroll.BorderSizePixel = 0
-Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 10)
-
-local layout = Instance.new("UIListLayout", scroll)
-layout.Padding = UDim.new(0, 5)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-for name, id in pairs(songs) do
-    local button = Instance.new("TextButton", scroll)
-    button.Text = name
-    button.Size = UDim2.new(1, -10, 0, 28)
-    button.BackgroundColor3 = baseColor
-    button.TextColor3 = textColor
-    button.Font = Enum.Font.Gotham
-    button.TextSize = 16
-    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
-
-    button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = accentColor}):Play()
-    end)
-    button.MouseLeave:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = baseColor}):Play()
-    end)
-    button.MouseButton1Click:Connect(function()
-        input.Text = tostring(id)
-        statusLabel.Text = "Selected: " .. name
-        statusLabel.TextColor3 = accentColor
-    end)
+-- Function to play audio
+local function playAudio(audioID)
+    local boombox = game.Workspace:FindFirstChild("Boombox") -- Make sure Boombox exists
+    if boombox then
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://" .. audioID
+        sound.Parent = boombox
+        sound:Play()
+    else
+        warn("Boombox not found!")
+    end
 end
 
--- ========== Boombox Remote Logic ==========
-local boomboxRemote = findRemote()
-
-spawn(function()
-    while gui and gui.Parent do
-        wait(1)
-        if boomboxRemote then
-            statusLabel.Text = "Boombox connected!"
-            statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-            break
+-- Bass toggle feature
+local function toggleBass(enabled)
+    local boombox = game.Workspace:FindFirstChild("Boombox")
+    if boombox then
+        -- Bass boost logic here (You can modify this part based on your needs)
+        if enabled then
+            boombox.BassBoost = true  -- Example (you need to define the property if it's not available)
         else
-            statusLabel.Text = "Waiting for boombox status..."
-            statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+            boombox.BassBoost = false
         end
+    else
+        warn("Boombox not found!")
     end
-end)
+end
 
-playBtn.MouseButton1Click:Connect(function()
-    local songID = input.Text
-    if boomboxRemote and songID and songID ~= "" then
-        boomboxRemote:FireServer("Play", songID)
-        statusLabel.Text = "Playing: " .. songID
-    end
-end)
+-- GUI Logic
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 400, 0, 500)
+Frame.Position = UDim2.new(0.5, -200, 0.5, -250)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.Parent = ScreenGui
+ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
 
-stopBtn.MouseButton1Click:Connect(function()
-    if boomboxRemote then
-        boomboxRemote:FireServer("Stop")
-        statusLabel.Text = "Stopped"
-    end
-end)
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Text = "Audio List"
+TitleLabel.Size = UDim2.new(0, 400, 0, 50)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextSize = 30
+TitleLabel.Parent = Frame
 
--- ========== Toggle GUI ==========
-toggleIcon.MouseButton1Click:Connect(function()
-    frame.Visible = not frame.Visible
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(0, 400, 0, 400)
+ScrollFrame.Position = UDim2.new(0, 0, 0, 50)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 10
+ScrollFrame.Parent = Frame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = ScrollFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+-- Add buttons for each audio to the GUI
+for audioName, audioID in pairs(audioList) do
+    local AudioButton = Instance.new("TextButton")
+    AudioButton.Text = audioName
+    AudioButton.Size = UDim2.new(0, 380, 0, 40)
+    AudioButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    AudioButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    AudioButton.Font = Enum.Font.GothamBold
+    AudioButton.TextSize = 18
+    AudioButton.Parent = ScrollFrame
+    
+    AudioButton.MouseButton1Click:Connect(function()
+        playAudio(audioID)
+    end)
+end
+
+-- Bass Toggle Button
+local BassButton = Instance.new("TextButton")
+BassButton.Text = "Toggle Bass"
+BassButton.Size = UDim2.new(0, 400, 0, 50)
+BassButton.Position = UDim2.new(0, 0, 0, 450)
+BassButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+BassButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BassButton.Font = Enum.Font.GothamBold
+BassButton.TextSize = 18
+BassButton.Parent = ScreenGui
+
+local bassEnabled = false
+
+BassButton.MouseButton1Click:Connect(function()
+    bassEnabled = not bassEnabled
+    toggleBass(bassEnabled)
+    BassButton.Text = bassEnabled and "Bass: ON" or "Bass: OFF"
 end)
