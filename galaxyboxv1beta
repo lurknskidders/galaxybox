@@ -135,4 +135,148 @@ title.TextStrokeTransparency = 0.75
 
 -- ========== Input ==========
 local input = Instance.new("TextBox", frame)
-input.PlaceholderText
+input.PlaceholderText = "Paste Audio ID or Select from List"
+input.Size = UDim2.new(1, -30, 0, 32)
+input.Position = UDim2.new(0, 15, 0, 50)
+input.BackgroundColor3 = darkAccent
+input.TextColor3 = textColor
+input.ClearTextOnFocus = false
+Instance.new("UICorner", input).CornerRadius = UDim.new(0, 8)
+
+-- ========== Status Label ==========
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Position = UDim2.new(0, 15, 0, 90)
+statusLabel.Size = UDim2.new(1, -30, 0, 20)
+statusLabel.BackgroundTransparency = 1
+statusLabel.TextColor3 = textColor
+statusLabel.Text = "Boombox status pending..."
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextSize = 14
+
+-- ========== Play/Stop Buttons ==========
+local buttonsFrame = Instance.new("Frame", frame)
+buttonsFrame.Size = UDim2.new(1, -30, 0, 34)
+buttonsFrame.Position = UDim2.new(0, 15, 0, 120)
+buttonsFrame.BackgroundTransparency = 1
+
+local playBtn = Instance.new("TextButton", buttonsFrame)
+playBtn.Text = "Play"
+playBtn.Size = UDim2.new(0.48, -5, 1, 0)
+playBtn.Position = UDim2.new(0, 0, 0, 0)
+playBtn.BackgroundColor3 = accentColor2
+playBtn.TextColor3 = Color3.new(1, 1, 1)
+playBtn.Font = Enum.Font.GothamBold
+playBtn.TextSize = 18
+Instance.new("UICorner", playBtn).CornerRadius = UDim.new(0, 10)
+buttonHover(playBtn)
+
+local stopBtn = Instance.new("TextButton", buttonsFrame)
+stopBtn.Text = "Stop"
+stopBtn.Size = UDim2.new(0.48, -5, 1, 0)
+stopBtn.Position = UDim2.new(0.52, 0, 0, 0)
+stopBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90)
+stopBtn.TextColor3 = Color3.new(1, 1, 1)
+stopBtn.Font = Enum.Font.GothamBold
+stopBtn.TextSize = 18
+Instance.new("UICorner", stopBtn).CornerRadius = UDim.new(0, 10)
+buttonHover(stopBtn)
+
+-- ========== Song Scroll List ==========
+local scroll = Instance.new("ScrollingFrame", frame)
+scroll.Position = UDim2.new(0, 15, 0, 170)
+scroll.Size = UDim2.new(1, -30, 1, -180)
+scroll.CanvasSize = UDim2.new(0, 0, 0, #songs * 30)
+scroll.ScrollBarThickness = 6
+scroll.BackgroundColor3 = darkAccent
+scroll.BorderSizePixel = 0
+Instance.new("UICorner", scroll).CornerRadius = UDim.new(0, 10)
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+for name, id in pairs(songs) do
+	local button = Instance.new("TextButton", scroll)
+	button.Text = name
+	button.Size = UDim2.new(1, -10, 0, 28)
+	button.BackgroundColor3 = baseColor
+	button.TextColor3 = textColor
+	button.Font = Enum.Font.Gotham
+	button.TextSize = 16
+	Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = accentColor}):Play()
+	end)
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.15), {BackgroundColor3 = baseColor}):Play()
+	end)
+	button.MouseButton1Click:Connect(function()
+		input.Text = tostring(id)
+		statusLabel.Text = "Selected: " .. name
+		statusLabel.TextColor3 = accentColor
+	end)
+end
+
+-- ========== Boombox Remote Logic ==========
+local boomboxRemote = findRemote()
+spawn(function()
+	while gui and gui.Parent do
+		wait(2)
+		local remote = findRemote()
+		if remote ~= boomboxRemote then
+			boomboxRemote = remote
+			if boomboxRemote then
+				statusLabel.Text = "Boombox equipped."
+				statusLabel.TextColor3 = accentColor
+			else
+				statusLabel.Text = "Boombox not equipped."
+				statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+			end
+		end
+	end
+end)
+
+-- ========== Play/Stop Functions ==========
+local function playSong(id)
+	if not boomboxRemote then
+		statusLabel.Text = "No boombox equipped!"
+		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+		return
+	end
+	boomboxRemote:FireServer("Play", id)
+	statusLabel.Text = "Playing: " .. id
+	statusLabel.TextColor3 = accentColor
+end
+
+local function stopSong()
+	if not boomboxRemote then
+		statusLabel.Text = "No boombox equipped!"
+		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+		return
+	end
+	boomboxRemote:FireServer("Stop")
+	statusLabel.Text = "Stopped."
+	statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+end
+
+playBtn.MouseButton1Click:Connect(function()
+	local songID = input.Text
+	if songs[songID] then
+		playSong(songs[songID])
+	elseif tonumber(songID) then
+		playSong(songID)
+	else
+		statusLabel.Text = "Invalid Song ID"
+		statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+	end
+end)
+
+stopBtn.MouseButton1Click:Connect(function()
+	stopSong()
+end)
+
+-- Toggle Visibility
+toggleIcon.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+end)
